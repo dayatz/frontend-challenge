@@ -5,8 +5,8 @@ const MapView: React.FunctionComponent = () => {
 
   const mapContainer = useRef<HTMLDivElement>(null);
   mapboxgl.accessToken = 'pk.eyJ1IjoiazRsayIsImEiOiJjaXcza2N0NGQwMDBsMnltbzBxdmJtbGg3In0.VXQxTuebIXo-YVKA1rULbA';
-  useEffect(() => {
 
+  useEffect(() => {
 
     const map = new mapboxgl.Map({
       container: mapContainer.current as HTMLElement,
