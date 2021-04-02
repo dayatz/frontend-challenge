@@ -1,13 +1,21 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useMemo} from 'react';
 import mapboxgl, { Expression } from "mapbox-gl";
+import { convertToGeoJson } from '../utils';
+import { PointObject } from '../interfaces';
 
-const MapView: React.FunctionComponent = () => {
+type Props = {
+  loading: boolean
+  data: PointObject[] | undefined
+}
 
+const MapView: React.FC<Props> = ({
+  loading,
+  data
+}) => {
+  const geoData = useMemo(() => convertToGeoJson(data), [data])
   const mapContainer = useRef<HTMLDivElement>(null);
   mapboxgl.accessToken = 'pk.eyJ1IjoiazRsayIsImEiOiJjaXcza2N0NGQwMDBsMnltbzBxdmJtbGg3In0.VXQxTuebIXo-YVKA1rULbA';
-
   useEffect(() => {
-
     const map = new mapboxgl.Map({
       container: mapContainer.current as HTMLElement,
       style: 'mapbox://styles/mapbox/light-v10',
@@ -18,7 +26,8 @@ const MapView: React.FunctionComponent = () => {
     map.on('load', function() {
       map.addSource('pluto', {
         type: 'geojson',
-        data: '/test.geojson'
+        // data: '/test.geojson'
+        data: geoData
       });
 
       const defaultColor = "rgb(53, 175, 109)"
@@ -38,12 +47,15 @@ const MapView: React.FunctionComponent = () => {
             "case",
             ["in", "|1|", ["get", "ClassName"]], "#FF443B", // Hole
             ["in", "|11|", ["get", "ClassName"]], "#FF443B", // Hole
+
             ["in", "|2|", ["get", "ClassName"]], "#FF9A4A", // Crack
             ["in", "|5|", ["get", "ClassName"]], "#FF9A4A", // Crack
             ["in", "|7|", ["get", "ClassName"]], "#FF9A4A", // Crack
             ["in", "|10|", ["get", "ClassName"]], "#FF9A4A", // Crack
             ["in", "|9|", ["get", "ClassName"]], "#FF9A4A", // Crocodile crack
+
             ["in", "|3|", ["get", "ClassName"]], "#00FF01", // Depression
+
             ["in", "|4|", ["get", "ClassName"]], "#FFD23D", // Lane marking
             ["in", "|8|", ["get", "ClassName"]], "#FFD23D", // Lane marking
             ["in", "|0|", ["get", "ClassName"]], "#FFD23D", // Number plate
@@ -55,10 +67,12 @@ const MapView: React.FunctionComponent = () => {
     })
 
     return () => map.remove();
-  }, [])
+  }, [data])
 
 
-  return <div ref={mapContainer} style={{width: '100%', height: '100%', position: 'absolute'}} />
+  return (
+    <div ref={mapContainer} style={{width: '100%', height: '100%', position: 'absolute'}} />
+  )
 };
 
 export default MapView;
