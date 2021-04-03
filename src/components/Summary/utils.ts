@@ -4,10 +4,10 @@ export const getDamageDistributionsByClassnames =
   (pointObjects: PointObject[]) => {
   const totalDamage = pointObjects.reduce((acc, p) => acc + p.DamagePoint, 0)
   const levelClasses = [
-    ["|3|", null],
+    ["", null],
+    ["|3|"],
     ["|4|", "|8|", "|0|", "|6|"],
-    ["|9|"],
-    ["|2|", "|5|", "|7|", "|10|"],
+    ["|2|", "|5|", "|7|", "|10|", "|9|"],
     ["|1|", "|11|"]
   ]
   const result: {[key: string]: number} = {

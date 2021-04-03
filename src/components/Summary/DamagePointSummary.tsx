@@ -6,6 +6,9 @@ type Props = {
     data: PointObject[]
     isLoading: boolean
 }
+
+const getPercent = (subtotal: number, total: number) => Math.round((subtotal/total) * 100)
+
 const DamagePointSummary: React.FC<Props> = ({ data, isLoading }) => {
     if (!data) {
         return <Spin />
@@ -14,11 +17,11 @@ const DamagePointSummary: React.FC<Props> = ({ data, isLoading }) => {
     const { total, level1, level2, level3, level4, level5 } = damageDistributionsByClassnames
     return (
         <Spin spinning={isLoading}>
-            <Progress percent={(level1/total) * 100} strokeColor="#00FF01" />
-            <Progress percent={(level2/total) * 100} strokeColor="#FFD23D" />
-            <Progress percent={(level3/total) * 100} strokeColor="#FF9A4A" />
-            <Progress percent={(level4/total) * 100} strokeColor="#FF9A4A" />
-            <Progress percent={(level5/total) * 100} strokeColor="#FF443B" />
+            <Progress percent={getPercent(level1, total)} strokeColor="#00FF01" />
+            <Progress percent={getPercent(level2, total)} strokeColor="#FFD23D" />
+            <Progress percent={getPercent(level3, total)} strokeColor="#FF9A4A" />
+            <Progress percent={getPercent(level4, total)} strokeColor="#FF9A4A" />
+            <Progress percent={getPercent(level5, total)} strokeColor="#FF443B" />
         </Spin>
     )
 }

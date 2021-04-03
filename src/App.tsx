@@ -5,21 +5,26 @@ import MapView from './views/map';
 import SideBar from './views/SideBar';
 import { useFetch } from "use-http"
 import { Filter, RoadType } from "./interfaces"
-import { filterToURLEcode } from "./utils";
+import { filterToURLEcode, urlToFilter } from "./utils";
+import { Spin } from "antd"
 
 function App() {
+  const initialFilter = urlToFilter()
   const {
     data, loading, error, get, response
   } = useFetch("http://localhost:9009/points")
 
   const [filter, setFilter] = useState<Filter>({
-    dateStart: null,
-    dateEnd: null,
-    roadTypes: [RoadType.City, RoadType.Rural, RoadType.Residential, RoadType.Bikepath]
+    dateStart: initialFilter.dateStart,
+    dateEnd: initialFilter.dateEnd,
+    roadTypes: !!initialFilter.roadTypes.length
+      ? initialFilter.roadTypes
+      : [RoadType.City, RoadType.Rural, RoadType.Residential, RoadType.Bikepath]
   })
 
   useEffect(() => {
     const params: string = filterToURLEcode(filter)
+    window.history.replaceState({}, "", window.location.pathname + params)
     get(params)
   }, [filter, get])
 

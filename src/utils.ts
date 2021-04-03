@@ -1,6 +1,7 @@
 import { Feature, FeatureCollection, Geometry } from 'geojson';
-import { Filter, PointObject } from "./interfaces";
+import { Filter, PointObject, RoadType } from "./interfaces";
 import queryString from "query-string"
+import moment from 'moment';
 
 export function convertToGeoJson(pointData: PointObject[] | undefined): FeatureCollection<Geometry, PointObject> {
   const features: Feature<Geometry, PointObject>[] = []
@@ -27,21 +28,53 @@ export function convertToGeoJson(pointData: PointObject[] | undefined): FeatureC
 }
 
 export const getFilterToParams = (filter: Filter) => {
-  const transformedFilter: {[key: string] : any} = {...filter}
+  const transformedFilter: {[key: string] : any} = {}
   if (!!filter.dateStart) {
     transformedFilter["DetectedAt__gte"] = filter.dateStart?.valueOf()
-    delete transformedFilter.dateStart
   }
   if (!!filter.dateEnd) {
     transformedFilter["DetectedAt__lte"] = filter.dateEnd?.valueOf()
-    delete transformedFilter.dateEnd
+  }
+  if (!!filter.roadTypes.length) {
+    transformedFilter["Roadtype"] = filter.roadTypes
   }
   return transformedFilter
 }
 
 export const filterToURLEcode = (filter: Filter) => {
   const filterToParams = getFilterToParams(filter)
-  console.log({ filterToParams })
   const params = "?"+queryString.stringify(filterToParams)
   return params
+}
+
+export const urlToFilter = () => {
+  const s = window.location.search
+  const result: Filter = {
+    dateStart: null,
+    dateEnd: null,
+    roadTypes: []
+  }
+  const parsed = queryString.parse(s)
+
+  if (parsed.Roadtype) {
+    let roadTypes: RoadType[]
+    if (typeof parsed.Roadtype === "string") {
+      roadTypes = [parseInt(parsed.Roadtype)]
+    } else {
+      roadTypes = parsed.Roadtype.map(t => parseInt(t))
+    }
+    result.roadTypes = roadTypes
+  }
+
+  if (parsed["DetectedAt__gte"]) {
+    result.dateStart = moment(parseInt(parsed["DetectedAt__gte"] as string))
+    console.log(result.dateStart)
+  }
+  if (parsed["DetectedAt__lte"]) {
+    result.dateEnd = moment(parseInt(parsed["DetectedAt__lte"] as string))
+  }
+
+  console.log({ result })
+
+  return result
 }

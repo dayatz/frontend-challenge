@@ -1,5 +1,5 @@
-import React, {useEffect, useRef, useMemo} from 'react';
-import mapboxgl, { Expression } from "mapbox-gl";
+import React, {useEffect, useRef, useMemo, useState} from 'react';
+import mapboxgl, { Expression, GeoJSONSource } from "mapbox-gl";
 import { convertToGeoJson } from '../utils';
 import { PointObject } from '../interfaces';
 
@@ -12,6 +12,7 @@ const MapView: React.FC<Props> = ({
   loading,
   data
 }) => {
+  const [currentMap, setCurrentMap] = useState<mapboxgl.Map>()
   const geoData = useMemo(() => convertToGeoJson(data), [data])
   const mapContainer = useRef<HTMLDivElement>(null);
   mapboxgl.accessToken = 'pk.eyJ1IjoiazRsayIsImEiOiJjaXcza2N0NGQwMDBsMnltbzBxdmJtbGg3In0.VXQxTuebIXo-YVKA1rULbA';
@@ -24,6 +25,7 @@ const MapView: React.FC<Props> = ({
     })
 
     map.on('load', function() {
+      console.log({ data })
       map.addSource('pluto', {
         type: 'geojson',
         // data: '/test.geojson'
@@ -64,11 +66,17 @@ const MapView: React.FC<Props> = ({
           ]
         }
       })
+      setCurrentMap(map)
     })
-
     return () => map.remove();
-  }, [data])
+  }, [])
 
+  useEffect(() => {
+    if (!!currentMap) {
+      const source = currentMap?.getSource("pluto") as GeoJSONSource
+      source?.setData(geoData)
+    }
+  }, [data, currentMap])
 
   return (
     <div ref={mapContainer} style={{width: '100%', height: '100%', position: 'absolute'}} />
